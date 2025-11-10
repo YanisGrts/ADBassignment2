@@ -1,22 +1,20 @@
-version: '3.8'
-
 services:
-  # 1. Your customized Neo4j service (adb-neo4j)
   adb-neo4j:
     container_name: adb-neo4j
-    image: neo4j
+    image: neo4j:latest
     ports:
-      - "7474:7474" # Neo4j Browser UI
-      - "7687:7687" # Bolt protocol (for Python driver)
+      - "7474:7474"
+      - "7687:7687"
     environment:
       NEO4J_AUTH: none
-      # FIX: Changed from YAML list to comma-separated string to fix validation error
-      NEO4J_PLUGINS: "apoc,n10s"
-      NEO4J_apoc_import_file_enabled: true # Necessary for LOAD CSV/APOC imports
-      NEO4J_dbms_security_procedures_unrestricted: "n10s.*"
+      
+      # --- THIS IS THE FIX ---
+      # Format this as a string containing a JSON array
+      NEO4J_PLUGINS: '["graph-data-science", "apoc"]'
+      
+      NEO4J_apoc_import_file_enabled: true
+      NEO4J_dbms_security_procedures_unrestricted: "gds.*,apoc.*"
     volumes:
-      # Volume for CSV data import
       - ./import:/var/lib/neo4j/import
-      # Volume for persistent database data
       - ./data:/data
     restart: always
